@@ -1,0 +1,13 @@
+{Conversor de Temperatura: °C -> °F}
+prg Exemplo_02;
+{Declaração de variáveis}
+var
+  int c;
+  float f;
+{Programa principal}
+begin
+  write("Informe a temperatura em °C: ");
+  read(c);
+  f <- 1.8 * C - 32;
+  write("O correspondente em Fahrenheit é: ", f);
+end.
