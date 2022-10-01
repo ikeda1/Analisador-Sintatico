@@ -1558,8 +1558,8 @@ int main(int argc, char *argv[]) {
   
   char palavraFormatada[1000000];
   
-    FILE *arq = fopen(argv[1], "r");
-    //FILE *arq = fopen("codigo5.txt", "r");
+    // FILE *arq = fopen(argv[1], "r");
+    FILE *arq = fopen("ex3.txt", "r");
     if (arq == NULL)
     {
      fprintf(stderr, "Erro ao tentar abrir o aquivo \"%s\"", argv[1]);

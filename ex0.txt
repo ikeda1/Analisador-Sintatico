@@ -1,12 +1,3 @@
-Pedro > Shigueoand >anda<= Igor or == != -<
-int{comentario} dawdawdawd < 123+ adwd321321 }
-inteligente int<
-'teste'
-until
-"dawdawdawdawdaw"
-dawdaw
-char >= chart int>+1
-. end begi begin
-and, begin, char, else, end, float, for, if, int, not, or, prg, read, repeat,
-return, subrot, then, until, var, void, while e write
-WRITE
+prg Exemplo_01;
+begin
+end.
