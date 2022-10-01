@@ -738,12 +738,12 @@ int e(char texto[], int *pos) { // <e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
 }
 
 int expr(char texto[], int *pos) { // <exp> → <exps>{<op_cat3><exps>}
+    repete:
     if (exps(texto, pos)) {
-        if (op_cat3(texto, pos)) { // se <op_cat3>
-            if (exps(texto, pos)) {
-                return 1;
+        if (op_cat3(texto, pos) && exps(texto, pos)) { // se <op_cat3>
+            if (op_cat3(texto, pos)) {
+                goto repete;
             }
-            return 0;
 
         } else {
             return 1;

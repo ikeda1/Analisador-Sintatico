@@ -21,105 +21,94 @@
 char lookahead; /* Excepcionalmente variavel global */
 
 // Inicializando as funções
-int id(char palavra[], int *pos);
-int dcl(char palavra[], int *pos);
-int ini(char palavra[], int *pos);
-int digito(char palavra[], int *pos);
-int tpo(char palavra[], int *pos);
-int sub(char palavra[], int *pos);
-int param(char palavra[], int *pos);
-int bco(char palavra[], int *pos);
-int cmd(char palavra[], int *pos);
-int wr(char palavra[], int *pos);
-int rd(char palavra[], int *pos);
-int retorna(char palavra[], int *pos);
-int sIF(char palavra[], int *pos);
-int fr(char palavra[], int *pos);
-int wh(char palavra[], int *pos);
-int rpt(char palavra[], int *pos);
-int atr(char palavra[], int *pos);
-int f(char palavra[], int *pos);
-int e(char palavra[], int *pos);
-int exp1(char palavra[], int *pos);
-int exps(char palavra[], int *pos);
-int tmo(char palavra[], int *pos);
-int ftr(char palavra[], int *pos);
-int op_cat3(char palavra[], int *pos);
-int op_cat2(char palavra[], int *pos);
-int op_cat1(char palavra[], int *pos);
+int id(char texto[], int *pos);
+int dcl(char texto[], int *pos);
+int ini(char texto[], int *pos);
+int digito(char texto[], int *pos);
+int tpo(char texto[], int *pos);
+int sub(char texto[], int *pos);
+int param(char texto[], int *pos);
+int bco(char texto[], int *pos);
+int cmd(char texto[], int *pos);
+int wr(char texto[], int *pos);
+int rd(char texto[], int *pos);
+int retorna(char texto[], int *pos);
+int sIF(char texto[], int *pos);
+int fr(char texto[], int *pos);
+int wh(char texto[], int *pos);
+int rpt(char texto[], int *pos);
+int atr(char texto[], int *pos);
+int f(char texto[], int *pos);
+int e(char texto[], int *pos);
+int exp1(char texto[], int *pos);
+int exps(char texto[], int *pos);
+int tmo(char texto[], int *pos);
+int ftr(char texto[], int *pos);
+int op_cat3(char texto[], int *pos);
+int op_cat2(char texto[], int *pos);
+int op_cat1(char texto[], int *pos);
 
 
-int match(char t, char palavra[], int *pos){ //Verifica o simbolo e casa
+int check(char t, char texto[], int *pos){ //Verifica o simbolo e casa
   if (lookahead == t) {
-    lookahead = palavra[++(*pos)];
+    lookahead = texto[++(*pos)];
     return (1);
   }
   return (0);
 }
 
-int ini(char palavra[], int *pos) // sPRG<id>;[<dcl>][<sub>]<bco>.
-{ 
-  if (lookahead == 'p')
-  {
-    if(match('p', palavra, pos) && match('r', palavra, pos) && match('g', palavra, pos)) //Match do simbolo do prg
-    {
-      if(id(palavra, pos) && match(';', palavra, pos)) //<id>;
-      {
-        if(dcl(palavra, pos)) //[<dcl]
-        {
-          if(sub(palavra, pos)) //[<sub>]
-          {
-            if(bco(palavra, pos) && match('.', palavra, pos)){ //<bco>.
-              return (1);
-            }
-            else
-              return (0);
-          }
-          else if(bco(palavra, pos)) // <bco>
-          {
-            if(lookahead == ('.')) // .
-            {
-              if(match('.', palavra, pos)){
-                return (1);
-              }
-              else
-                return (0);
-            }
-            else
-              return (0);
-          }
-          else
-            return(0);
+int ini(char texto[], int *pos) {
+    printf("inside\n");
+    if (lookahead == 'p'){
+        printf("achou o p\n");
+        if (check('p', texto, pos) && check('r', texto, pos) && check('g', texto, pos)){ // sPRG
+            printf("achou prg\n");
+            if (id(texto, pos) && check(';', texto, pos)) { // <id>;
+                printf("dentro do id\n");
+                if (dcl(texto, pos)) {
+                    printf("achou dcl\n");
+                    
+                    if (sub(texto, pos)){
+                        printf("achou sub\n");
+                        if (bco(texto, pos)) {
+                            printf("achou bco\n");
+                            if (check('.', texto, pos)) {
+                                return 1;
+                            }
+                        } else return 0;
+
+                    } else if (bco(texto, pos)) {
+                        printf("segundo bco\n");
+                        if (check('.', texto, pos)){
+                            return 1;
+                        } else return 0;
+                    }
+
+                } else if (sub(texto, pos)) {
+                    printf("segundo sub\n");
+                    if (bco(texto, pos)) {
+                        if (check('.', texto, pos)) {
+                            return 1;
+                        }
+                    } else return 0;
+
+                } 
+                else if (bco(texto, pos)) {
+                    printf("segundo bco\n");
+                    if (check('.', texto, pos)) {
+                        return 1;
+                    }
+                } else return 0;
+            } 
         }
-        else if(sub(palavra, pos)) // [<sub]
-        {
-          if(bco(palavra, pos) && match('.', palavra, pos)){ // <bco>.
-            return (1);
-          }
-          else
-            return (0);
-        }
-        else if(bco(palavra, pos) && match('.', palavra, pos)) // <bco>.
-        {
-          return (1);
-        }
-        else
-          return (0);
-      }
-    else 
-      return (0);
     }
-    else
-      return(0);
-  }
-  else
-    return (0);
+    return 0;
 }
 
-int id(char palavra[], int *pos){ // <id> -> sIDENT
+int id(char texto[], int *pos){ // <id> -> sIDENT
   if(isalpha(lookahead) || (lookahead >= '0' && lookahead <= '9') || lookahead == '_')
   {
-    if(match(lookahead, palavra, pos) && id(palavra, pos))
+    if(check(lookahead, texto, pos) && id(texto, pos))
     {
       return (1);
     }
@@ -133,14 +122,14 @@ int id(char palavra[], int *pos){ // <id> -> sIDENT
     return(0);
 }
 
-int let(char palavra[], int *pos){ //Letra ou simbolo
+int let(char texto[], int *pos){ //Letra ou simbolo
   if(isalpha(lookahead) || (lookahead >= '0' && lookahead <= '9') || lookahead == '_'
     || lookahead == ' ' || lookahead == ':' || lookahead == '~' || lookahead == '^'
     || lookahead == '-' || lookahead == '+' || lookahead == '*' || lookahead == '/' 
     || lookahead == '>' || lookahead == ':' || lookahead == '[' || lookahead == '.' 
     || lookahead == ']' || lookahead == '{' || lookahead == '}' || lookahead == ';' || lookahead == '#')
   {
-    if(match(lookahead, palavra, pos) && let(palavra, pos)) //Caso seja frase.
+    if(check(lookahead, texto, pos) && let(texto, pos)) //Caso seja frase.
     {
       return (1);
     }
@@ -154,22 +143,22 @@ int let(char palavra[], int *pos){ //Letra ou simbolo
     return(0);
 }
 
-int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNUM]]} {<tpo><id>[[sNUM]]{,<id>[[sNUM]]};}
+int dcl(char texto[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNUM]]} {<tpo><id>[[sNUM]]{,<id>[[sNUM]]};}
 
   if(lookahead == 'v')
   {
-    if(match('v', palavra, pos) && match('a', palavra, pos) && match('r', palavra, pos)) //sVAR
+    if(check('v', texto, pos) && check('a', texto, pos) && check('r', texto, pos)) //sVAR
     {
-      if(tpo(palavra, pos) && id(palavra, pos)) // <tpo><id>
+      if(tpo(texto, pos) && id(texto, pos)) // <tpo><id>
       {
     novaVar:
         if(lookahead == '[') // [[sNUM]]
         { 
-          if (match('[', palavra, pos) && digito(palavra, pos) && match(']', palavra, pos)) // sVAR <tpo><id>[[sNUM]]
+          if (check('[', texto, pos) && digito(texto, pos) && check(']', texto, pos)) // sVAR <tpo><id>[[sNUM]]
             {
               if(lookahead == ';') // sVAR <tpo><id>[[sNUM]];
               {
-                if(match(';', palavra, pos))
+                if(check(';', texto, pos))
                 {
                   return (1);
                 }
@@ -178,17 +167,17 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
               }
               else if(lookahead == ',') //Caso tenha mais id
               {
-                if(match(',', palavra, pos) && id(palavra, pos)) // , <id>
+                if(check(',', texto, pos) && id(texto, pos)) // , <id>
                 {
                   if(lookahead == '[')
                   { // ,<id>[[sNUM]]
-                    if(match('[', palavra, pos) && digito(palavra, pos) && match(']', palavra, pos))
+                    if(check('[', texto, pos) && digito(texto, pos) && check(']', texto, pos))
                     {
                       if(lookahead == ';')
                       {
-                        if(match(';', palavra, pos)) // , <id>[[sNUM]] ;
+                        if(check(';', texto, pos)) // , <id>[[sNUM]] ;
                         {
-                          if(tpo(palavra, pos) && id(palavra, pos))
+                          if(tpo(texto, pos) && id(texto, pos))
                           {
                             goto novaVar;
                           }
@@ -200,9 +189,9 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
                   }
                   else if(lookahead == ';')
                   {
-                    if(match(';', palavra, pos))
+                    if(check(';', texto, pos))
                     {
-                      if(tpo(palavra, pos) && id(palavra, pos)) //{<tpo><id>}
+                      if(tpo(texto, pos) && id(texto, pos)) //{<tpo><id>}
                       {
                         goto novaVar;
                       }
@@ -216,17 +205,17 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
         }
         else if(lookahead == ',') //Caso tenha mais id
         {
-          if(match(',', palavra, pos) && id(palavra, pos))
+          if(check(',', texto, pos) && id(texto, pos))
           {
             if(lookahead == '[')
             {
-              if(match('[', palavra, pos) && digito(palavra, pos) && match(']', palavra, pos)) // id[[sNUM]]
+              if(check('[', texto, pos) && digito(texto, pos) && check(']', texto, pos)) // id[[sNUM]]
               {
                 if(lookahead == ';')
                 {
-                  if(match(';', palavra, pos))
+                  if(check(';', texto, pos))
                   {
-                    if(tpo(palavra, pos) && id(palavra, pos)) //{<tpo>}{<id>}
+                    if(tpo(texto, pos) && id(texto, pos)) //{<tpo>}{<id>}
                     {
                       goto novaVar;
                     }
@@ -236,7 +225,7 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
                 }
                 else if(lookahead == ',') // {, <id>}
                 {
-                  if(match(',', palavra, pos) && id(palavra, pos))
+                  if(check(',', texto, pos) && id(texto, pos))
                   {
                     goto novaVar; //Caso tenha nova variavel
                   }
@@ -245,9 +234,9 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
             }
             else if(lookahead == ';')
             {
-              if(match(';', palavra, pos))
+              if(check(';', texto, pos))
               {
-                if(tpo(palavra, pos) && id(palavra, pos)) //{<tpo>}{id}
+                if(tpo(texto, pos) && id(texto, pos)) //{<tpo>}{id}
                 {
                   goto novaVar; //Caso tenha uma nova var
                 }
@@ -257,7 +246,7 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
             }
             else if(lookahead == ',')
             {
-              if(match(',', palavra, pos) && id(palavra, pos)) //{, <id>}
+              if(check(',', texto, pos) && id(texto, pos)) //{, <id>}
               {
                 goto novaVar;
               }
@@ -270,9 +259,9 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
         }
         else if(lookahead == ';')
         {
-          if(match(';', palavra, pos))
+          if(check(';', texto, pos))
           {
-            if(tpo(palavra, pos) && id(palavra, pos)) // {<tpo>}{<id>}
+            if(tpo(texto, pos) && id(texto, pos)) // {<tpo>}{<id>}
             {
               goto novaVar; //Caso tenha uma nova variavel
             }
@@ -293,10 +282,10 @@ int dcl(char palavra[], int *pos){ //<dcl> → sVAR <tpo><id>[[sNUM]]{,<id>[[sNU
     return (0);
 }
 
-int digito(char palavra[], int *pos) { // Numero intero ou decimal
+int digito(char texto[], int *pos) { // Numero intero ou decimal
   if (lookahead >= '0' && lookahead <= '9')
   {
-    if (match(lookahead, palavra, pos) && digito(palavra, pos))
+    if (check(lookahead, texto, pos) && digito(texto, pos))
     {
       return (1);
     } 
@@ -305,7 +294,7 @@ int digito(char palavra[], int *pos) { // Numero intero ou decimal
   }
   else if(lookahead == '.')
   {
-    if(match(lookahead , palavra, pos) && digito(palavra, pos))
+    if(check(lookahead , texto, pos) && digito(texto, pos))
     {
       return (1);
     }
@@ -316,10 +305,10 @@ int digito(char palavra[], int *pos) { // Numero intero ou decimal
     return (1); // D -> Palavra Vazia
 }
   
-int tpo(char palavra[], int *pos){ //<tpo> → sINT|sFLOAT|sCHAR
+int tpo(char texto[], int *pos){ //<tpo> → sINT|sFLOAT|sCHAR
   if(lookahead == 'i')
   {
-    if(match('i', palavra, pos) && match('n', palavra, pos) && match('t', palavra, pos))
+    if(check('i', texto, pos) && check('n', texto, pos) && check('t', texto, pos))
     {
       return (1);
     }
@@ -328,7 +317,7 @@ int tpo(char palavra[], int *pos){ //<tpo> → sINT|sFLOAT|sCHAR
   }
   else if(lookahead == 'f')
   {
-    if(match('f', palavra, pos) && match('l', palavra, pos) && match('o', palavra, pos) && match('a', palavra, pos) && match('t', palavra, pos))
+    if(check('f', texto, pos) && check('l', texto, pos) && check('o', texto, pos) && check('a', texto, pos) && check('t', texto, pos))
     {
       return (1);
     }
@@ -337,7 +326,7 @@ int tpo(char palavra[], int *pos){ //<tpo> → sINT|sFLOAT|sCHAR
   }
   else if(lookahead == 'c')
   {
-    if(match('c', palavra, pos) && match('h', palavra, pos) && match('a', palavra, pos) && match('r', palavra, pos))
+    if(check('c', texto, pos) && check('h', texto, pos) && check('a', texto, pos) && check('r', texto, pos))
     {
       return (1);
     }
@@ -347,31 +336,31 @@ int tpo(char palavra[], int *pos){ //<tpo> → sINT|sFLOAT|sCHAR
     return (0);
 }
 
-int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param>])[<dcl>][<sub>]<bco>; {(sVOID|<tpo>)<id>([<param>])[<dcl>][<sub>]<bco>;}
+int sub(char texto[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param>])[<dcl>][<sub>]<bco>; {(sVOID|<tpo>)<id>([<param>])[<dcl>][<sub>]<bco>;}
   if(lookahead == 's')
   {
-    if(match('s', palavra, pos) && match('u', palavra, pos) && match('b', palavra, pos) 
-      && match('r', palavra, pos) && match('o', palavra, pos) && match('t', palavra, pos))
+    if(check('s', texto, pos) && check('u', texto, pos) && check('b', texto, pos) 
+      && check('r', texto, pos) && check('o', texto, pos) && check('t', texto, pos))
     {
     subrotina:
       if(lookahead == 'v')
       {
-        if(match('v', palavra, pos) && match('o', palavra, pos) && match('i', palavra, pos) && match('d', palavra, pos))
+        if(check('v', texto, pos) && check('o', texto, pos) && check('i', texto, pos) && check('d', texto, pos))
         {
-          if(id(palavra, pos) && match('(', palavra, pos))
+          if(id(texto, pos) && check('(', texto, pos))
           {
             NovoParam:
             if(lookahead == ')')
             {
-              if(match(')', palavra, pos))
+              if(check(')', texto, pos))
               {
-                if(dcl(palavra, pos))
+                if(dcl(texto, pos))
                 {
-                  if(sub(palavra, pos))
+                  if(sub(texto, pos))
                   {
-                    if(bco(palavra, pos) && match(';', palavra, pos))
+                    if(bco(texto, pos) && check(';', texto, pos))
                     {
-                      if(lookahead == 'v' || tpo(palavra, pos))
+                      if(lookahead == 'v' || tpo(texto, pos))
                       {
                         goto subrotina; // Para fazer o {(sVOID|<tpo>)<id>([<param>])[<dcl>][<sub>]<bco>;}
                       }
@@ -381,9 +370,9 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                     else
                       return (0);
                   }
-                  else if(bco(palavra, pos) && match(';', palavra, pos))
+                  else if(bco(texto, pos) && check(';', texto, pos))
                   {
-                    if(lookahead == 'v' || tpo(palavra, pos)) // (sVOID | <tpo>)
+                    if(lookahead == 'v' || tpo(texto, pos)) // (sVOID | <tpo>)
                     {
                       goto subrotina;
                     }
@@ -393,11 +382,11 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                   else
                     return (0);
                 }
-                else if(sub(palavra, pos)) //[<sub>]
+                else if(sub(texto, pos)) //[<sub>]
                 {
-                  if(bco(palavra, pos) && match(';', palavra, pos)) // <bco>;
+                  if(bco(texto, pos) && check(';', texto, pos)) // <bco>;
                   {
-                    if(lookahead == 'v' || tpo(palavra, pos))
+                    if(lookahead == 'v' || tpo(texto, pos))
                     {
                       goto subrotina;
                     }
@@ -407,9 +396,9 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                   else
                     return (0);
                 }
-                else if(bco(palavra, pos))
+                else if(bco(texto, pos))
                 {
-                  if(lookahead == 'v' || tpo(palavra, pos)) // (sVOID | <tpo>)
+                  if(lookahead == 'v' || tpo(texto, pos)) // (sVOID | <tpo>)
                   {
                     goto subrotina;
                   }
@@ -422,19 +411,19 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
               else
                 return (0);
             }
-            else if(param(palavra, pos)) //[param]
+            else if(param(texto, pos)) //[param]
             {
               if(lookahead == ')')
               {
-                if(match(')', palavra, pos))
+                if(check(')', texto, pos))
                 {
-                  if(dcl(palavra, pos))
+                  if(dcl(texto, pos))
                   {
-                    if(sub(palavra, pos))
+                    if(sub(texto, pos))
                     {
-                      if(bco(palavra, pos) && match(';', palavra, pos))
+                      if(bco(texto, pos) && check(';', texto, pos))
                       {
-                        if(lookahead == 'v' || tpo(palavra, pos))
+                        if(lookahead == 'v' || tpo(texto, pos))
                         {
                           goto subrotina;
                         }
@@ -444,9 +433,9 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                       else
                         return (0);
                     }
-                    else if(bco(palavra, pos) && match(';', palavra, pos))
+                    else if(bco(texto, pos) && check(';', texto, pos))
                     {
-                        if(lookahead == 'v' || tpo(palavra, pos))
+                        if(lookahead == 'v' || tpo(texto, pos))
                         {
                           goto subrotina;
                         }
@@ -456,11 +445,11 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                     else
                       return (0);
                   }
-                  else if(sub(palavra, pos))
+                  else if(sub(texto, pos))
                   {
-                    if(bco(palavra, pos) && match(';', palavra, pos))
+                    if(bco(texto, pos) && check(';', texto, pos))
                     {
-                      if(lookahead == 'v' || tpo(palavra, pos))
+                      if(lookahead == 'v' || tpo(texto, pos))
                       {
                         goto subrotina;
                       }
@@ -470,9 +459,9 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                     else
                       return (0);
                   }
-                  else if(bco(palavra, pos) && match(';', palavra, pos))
+                  else if(bco(texto, pos) && check(';', texto, pos))
                   {
-                      if(lookahead == 'v' || tpo(palavra, pos))
+                      if(lookahead == 'v' || tpo(texto, pos))
                       {
                         goto subrotina;
                       }
@@ -483,7 +472,7 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
               }
               else if(lookahead == ',')
               {
-                if(match(',', palavra, pos))
+                if(check(',', texto, pos))
                 {
                   goto NovoParam;
                 }
@@ -493,7 +482,7 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
             }
             else if(lookahead == ',')
             {
-              if(match(',', palavra, pos))
+              if(check(',', texto, pos))
               {
                 goto NovoParam;
               }
@@ -505,22 +494,22 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
         else
           return (0);
       }  
-      else if(tpo(palavra, pos))
+      else if(tpo(texto, pos))
       {
-        if(id(palavra, pos) && match('(', palavra, pos))
+        if(id(texto, pos) && check('(', texto, pos))
           {
             NovoParam2:
             if(lookahead == ')')
             {
-              if(match(')', palavra, pos))
+              if(check(')', texto, pos))
               {
-                if(dcl(palavra, pos))
+                if(dcl(texto, pos))
                 {
-                  if(sub(palavra, pos))
+                  if(sub(texto, pos))
                   {
-                    if(bco(palavra, pos) && match(';', palavra, pos))
+                    if(bco(texto, pos) && check(';', texto, pos))
                     {
-                      if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                      if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                       {
                         goto subrotina;
                       }
@@ -529,11 +518,11 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                     }
                   }
                 }
-                else if(sub(palavra, pos))
+                else if(sub(texto, pos))
                 {
-                  if(bco(palavra, pos) && match(';', palavra, pos))
+                  if(bco(texto, pos) && check(';', texto, pos))
                   {
-                    if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                    if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                     {
                       goto subrotina;
                     }
@@ -543,19 +532,19 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                 }
               }
             }
-            else if(param(palavra, pos))
+            else if(param(texto, pos))
             {
             if(lookahead == ')')
               {
-                if(match(')', palavra, pos))
+                if(check(')', texto, pos))
                 {
-                  if(dcl(palavra, pos))
+                  if(dcl(texto, pos))
                   {
-                    if(sub(palavra, pos))
+                    if(sub(texto, pos))
                     {
-                      if(bco(palavra, pos) && match(';', palavra, pos))
+                      if(bco(texto, pos) && check(';', texto, pos))
                       {
-                        if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                        if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                         {
                           goto subrotina;
                         }
@@ -564,11 +553,11 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                       }
                     }
                   }
-                  else if(sub(palavra, pos))
+                  else if(sub(texto, pos))
                   {
-                    if(bco(palavra, pos) && match(';', palavra, pos))
+                    if(bco(texto, pos) && check(';', texto, pos))
                     {
-                      if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                      if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                       {
                         goto subrotina;
                       }
@@ -580,7 +569,7 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
               }
             else if(lookahead == ',')
               {
-                if(match(',', palavra, pos))
+                if(check(',', texto, pos))
                 {
                   goto NovoParam2;
                 }
@@ -588,27 +577,27 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
             }
             else if(lookahead == ',')
             {
-              if(match(',', palavra, pos))
+              if(check(',', texto, pos))
               {
                 goto NovoParam2;
               }
             }
           }
       }
-      else if(id(palavra, pos) && match('(', palavra, pos))
+      else if(id(texto, pos) && check('(', texto, pos))
       {
         NovoParam3:
         if(lookahead == ')')
         {
-          if(match(')', palavra, pos))
+          if(check(')', texto, pos))
           {
-            if(dcl(palavra, pos))
+            if(dcl(texto, pos))
             {
-              if(sub(palavra, pos))
+              if(sub(texto, pos))
               {
-               if(bco(palavra, pos) && match(';', palavra, pos))
+               if(bco(texto, pos) && check(';', texto, pos))
                {
-                if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                 {
                   goto subrotina;
                 }
@@ -621,11 +610,11 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
               else
                 return(0);
             }
-            else if(sub(palavra, pos))
+            else if(sub(texto, pos))
             {
-              if(bco(palavra, pos) && match(';', palavra, pos))
+              if(bco(texto, pos) && check(';', texto, pos))
               {
-                if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                 {
                   goto subrotina;
                 }
@@ -641,19 +630,19 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
           else
             return (0);
         }
-        else if(param(palavra, pos))
+        else if(param(texto, pos))
         {
           if(lookahead == ')')
           {
-            if(match(')', palavra, pos))
+            if(check(')', texto, pos))
             {
-              if(dcl(palavra, pos))
+              if(dcl(texto, pos))
               {
-                if(sub(palavra, pos))
+                if(sub(texto, pos))
                 {
-                 if(bco(palavra, pos) && match(';', palavra, pos))
+                 if(bco(texto, pos) && check(';', texto, pos))
                  {
-                  if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                  if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                   {
                    goto subrotina;
                   }
@@ -666,11 +655,11 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
                 else
                   return (0);
               }
-              else if(sub(palavra, pos))
+              else if(sub(texto, pos))
               {
-                if(bco(palavra, pos) && match(';', palavra, pos))
+                if(bco(texto, pos) && check(';', texto, pos))
                 {
-                  if(lookahead == 'v' || tpo(palavra, pos) || id(palavra, pos))
+                  if(lookahead == 'v' || tpo(texto, pos) || id(texto, pos))
                   {
                     goto subrotina;
                   }
@@ -688,7 +677,7 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
           }
           else if(lookahead == ',')
           {
-            if(match(',', palavra, pos))
+            if(check(',', texto, pos))
             {
               goto NovoParam3;
             }
@@ -698,7 +687,7 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
         }
         else if(lookahead == ',')
         {
-          if(match(',', palavra, pos))
+          if(check(',', texto, pos))
           {
             goto NovoParam3;
           }
@@ -716,12 +705,12 @@ int sub(char palavra[], int *pos){ //<sub> → sSUBROT (sVOID|<tpo>)<id>([<param
     return (0);
 }
   
-int param(char palavra[], int *pos){ //<param> → <tpo><id>{;<tpo><id>}
-  if(tpo(palavra, pos) && id(palavra, pos))
+int param(char texto[], int *pos){ //<param> → <tpo><id>{;<tpo><id>}
+  if(tpo(texto, pos) && id(texto, pos))
   {
     if(lookahead == ';')
     {
-      if(match(';', palavra, pos) && tpo(palavra, pos) && id(palavra, pos))
+      if(check(';', texto, pos) && tpo(texto, pos) && id(texto, pos))
       {
         return (1);
       }
@@ -735,71 +724,61 @@ int param(char palavra[], int *pos){ //<param> → <tpo><id>{;<tpo><id>}
     return (0);
 }
   
-int cmd(char palavra[], int *pos){ //<cmd> → <wr>|<rd>|<if>|<fr>|<wh>|<rpt>|<atr>|<f>|<bco>
-  if(wr(palavra, pos))
-  {
+int cmd(char texto[], int *pos){ //<cmd> → <wr>|<rd>|<if>|<fr>|<wh>|<rpt>|<atr>|<f>|<bco>
+  if(wr(texto, pos)){
     return (1);
   }
-  else if(rd(palavra, pos))
-  {
+  else if(rd(texto, pos)){
     return (1);
   }
-  else if(retorna(palavra, pos))
-  {
+  else if(retorna(texto, pos)){
     return (1);
   }
-  else if(sIF(palavra, pos))
-  {
+  else if(sIF(texto, pos)){
     return (1);
   }
-  else if(fr(palavra, pos))
-  {
+  else if(fr(texto, pos)){
     return (1);
   }
-  else if(wh(palavra, pos))
-  {
+  else if(wh(texto, pos)){
     return (1);
   }
-  else if(rpt(palavra, pos))
-  {
+  else if(rpt(texto, pos)){
     return (1);
   }
-  else if(bco(palavra, pos))
-  {
+  else if(atr(texto, pos)){
     return (1);
   }
-  else if(atr(palavra, pos))
-  {
+  else if(f(texto, pos)){
     return (1);
   }
-  else if(f(palavra, pos))
-  {
+  else if(bco(texto, pos)){
     return (1);
   }
   else
     return (0);
 }
 
-int bco(char palavra[], int *pos){ //<bco> → sBEGIN {<cmd>;} sEND
+int bco(char texto[], int *pos){ //<bco> → sBEGIN {<cmd>;} sEND
   if(lookahead == 'b')
   {
     BeginNovo:
-    if(match('b', palavra, pos) && match('e', palavra, pos) && match('g', palavra, pos) && match('i', palavra, pos) 
-      && match('n', palavra, pos))
+    if(check('b', texto, pos) && check('e', texto, pos) && check('g', texto, pos) && check('i', texto, pos) 
+      && check('n', texto, pos))
     {
     continuaComandos:
-      if(cmd(palavra, pos) && match(';', palavra, pos))
+      if(cmd(texto, pos) && check(';', texto, pos))
       {
         NovoComando:
         if(lookahead == 'e')
         {
-          if(match('e', palavra, pos) && match('n', palavra, pos) && match('d', palavra, pos) && match(';', palavra,pos)) //Como visto nos exemplos temos dois tipos de end caso tenha mais de 1 o primeiro termina com ; e o segundo com .
+          if(check('e', texto, pos) && check('n', texto, pos) && check('d', texto, pos) && check(';', texto,pos)) //Como visto nos exemplos temos dois tipos de end caso tenha mais de 1 o primeiro termina com ; e o segundo com .
           {
             if(lookahead == 'b') //Caso tenha um begin novamente
             {
               goto BeginNovo;
             }
-            else if(cmd(palavra, pos) && match(';', palavra, pos)) //Caso tenha um comando depois do end
+            else if(cmd(texto, pos) && check(';', texto, pos)) //Caso tenha um comando depois do end
             {
               goto NovoComando;
             }
@@ -814,7 +793,7 @@ int bco(char palavra[], int *pos){ //<bco> → sBEGIN {<cmd>;} sEND
       }
       else if(lookahead == 'e')
       {
-        if(match('e', palavra, pos) && match('n', palavra, pos) && match('d', palavra, pos))
+        if(check('e', texto, pos) && check('n', texto, pos) && check('d', texto, pos))
         {
           return (1);
         }
@@ -833,119 +812,74 @@ int bco(char palavra[], int *pos){ //<bco> → sBEGIN {<cmd>;} sEND
     return (0);
 }
   
-int wr(char palavra[], int *pos){ //<wr> → sWRITE(<e>{,<e>})
-  if(lookahead == 'w')
-  {
-    if(match('w', palavra, pos) && match('r', palavra, pos) && match('i', palavra, pos) && match('t', palavra, pos) && match('e', palavra, pos))
-    {
-      if(lookahead == '(')
-      {
-        if(match('(', palavra, pos) && e(palavra, pos))
-        {
-          if(lookahead == ',')
-          {
-            if(match(',', palavra, pos) && e(palavra, pos))
-            {
-              if(lookahead == ')')
-              {
-                if(match(')', palavra, pos))
-                {
-                  return 1;
-                }
-                else
-                  return (0);
-              }
-              else
-                return (0);
+int wr(char texto[], int *pos) { // <wr> → sWRITE(<e>{,<e>})
+    if (lookahead == 'w') {
+        if (check('w', texto, pos) && check('r', texto, pos) && check('i', texto, pos) && check('t', texto, pos) && check('e', texto, pos)) {
+            if (check == '(') {
+                if (e(texto, pos)) { 
+
+                    if (lookahead == ',') { // se repetir <e>
+                        if (check(',', texto, pos)) {
+                            if (e(texto, pos)) {
+                                if (lookahead == ')') {
+                                    if (check(')', texto, pos)) {
+                                        return 1;
+                                    }
+                                }
+                            } return 0;
+                        }
+                        
+
+                    } else if (lookahead == ')') { // se não repetir
+                        if (check(')', texto, pos)) {
+                            return 1;
+                        }
+
+                    } else return 0; // se não encontrar , nem )
+
+                }  
             }
-            else 
-              return (0);
-          }
-          else if(lookahead == ')')
-          {
-            if(match(')', palavra, pos))
-            {
-              return (1);
-            }
-            else
-              return (0);
-          }
-          else
-            return (0);
         }
-        else
-          return (0);
-      }
-      else
-        return (0);
     }
-    else
-      return (0);
-  }
-  else
-    return (0);
+    return 0;
 }
 
-int rd(char palavra[], int *pos){ //<rd> → sREAD(<id>[[sNUM]])
-  if(lookahead == 'r')
-  {
-    if(match('r', palavra, pos) && match('e', palavra, pos) && match('a', palavra, pos) && match('d', palavra, pos))
-    {
-      if(lookahead == '(')
-      {
-        if(match('(', palavra, pos) && id(palavra, pos))
-        {
-          if(lookahead == '[')
-          {
-            if(match('[', palavra, pos) && digito(palavra, pos) && match(']', palavra, pos))
-            {
-              if(lookahead == ')')
-              {
-                if(match(')', palavra, pos))
-                {
-                  return (1);
-                }
-                else
-                  return (0);
-              }
-              else
-                return (0);
+int rd(char texto[], int *pos) { // <rd> → sREAD(<id>[[sNUM]])
+    if (lookahead == 'r') {
+        if (check('r', texto, pos) && check('e', texto, pos) && check('a', texto, pos) && check('d', texto, pos)) {
+            if (check('(', texto, pos)) {
+                if (id(texto, pos)) {
+
+                    if (lookahead == '[') { // se for um array
+                        if (check('[', texto, pos)) {
+                            if (digito(texto, pos)) {
+                                if (check(']', texto, pos)) {
+                                    if (check(')', texto, pos)) {
+                                        return 1;
+                                    }
+                                }
+                            }
+                        } 
+                        return 0;
+                    } else if (lookahead == ')') {
+                        if (check(')', texto, pos)) {
+                            return 1;
+                        }
+                    } else return 0;
+
+                } 
             }
-            else
-              return (0);
-          }
-          else if(lookahead == ')')
-          {
-            if(match(')', palavra, pos))
-            {
-              return (1);
-            }
-            else
-              return (0);
-          }
-          else
-            return (0);
         }
-        else
-          return (0);
-      }
-      else
-        return (0);
     }
-    else
-      return (0);
-  }
-  else 
-    return (0);
+    return 0;
 }
 
-int retorna(char palavra[], int *pos) //Função não prevista na linguagem mas necessária por conta dos exemplos fornecidos na LPD
-{
+int retorna(char texto[], int *pos) {
   if(lookahead == 'r')
   {
-    if(match('r', palavra, pos) && match('e', palavra, pos) && match('t', palavra, pos) && match('u', palavra, pos) && match('r', palavra, pos) && match('n', palavra, pos))
+    if(check('r', texto, pos) && check('e', texto, pos) && check('t', texto, pos) && check('u', texto, pos) && check('r', texto, pos) && check('n', texto, pos))
     {
-      if(e(palavra, pos))
+      if(e(texto, pos))
       {
         return (1);
       }
@@ -953,9 +887,9 @@ int retorna(char palavra[], int *pos) //Função não prevista na linguagem mas 
   }
   else if(lookahead == 't')
   {
-    if(match('t', palavra, pos) && match('u', palavra, pos) && match('r', palavra, pos) && match('n', palavra, pos)) //Por conta do read as vezes é marcado o re de return então para funcao funcionar temos isso de forma auxiliar
+    if(check('t', texto, pos) && check('u', texto, pos) && check('r', texto, pos) && check('n', texto, pos)) //Por conta do read as vezes é marcado o re de return então para funcao funcionar temos isso de forma auxiliar
     {
-      if(exp1(palavra, pos))
+      if(exp1(texto, pos))
       {
         return (1);
       }
@@ -965,23 +899,23 @@ int retorna(char palavra[], int *pos) //Função não prevista na linguagem mas 
     return (0);
 }
 
-int sIF(char palavra[], int *pos){ //<if> → sIF(<exp>)sTHEN<cmd>[sELSE<cmd>]
+int sIF(char texto[], int *pos){ //<if> → sIF(<exp>)sTHEN<cmd>[sELSE<cmd>]
   if(lookahead == 'i')
   {
-    if(match('i', palavra, pos) && match('f', palavra, pos) && match('(', palavra, pos)
-      && exp1(palavra, pos) && match(')', palavra, pos))
+    if(check('i', texto, pos) && check('f', texto, pos) && check('(', texto, pos)
+      && exp1(texto, pos) && check(')', texto, pos))
     {
       if(lookahead == 't')
       {
-        if(match('t', palavra, pos) && match('h', palavra, pos) && match('e', palavra, pos) && match('n', palavra, pos))
+        if(check('t', texto, pos) && check('h', texto, pos) && check('e', texto, pos) && check('n', texto, pos))
         {
-          if(cmd(palavra, pos) && match(';', palavra, pos))
+          if(cmd(texto, pos) && check(';', texto, pos))
           {
             if(lookahead == 'e')
             {
-              if(match('e', palavra, pos) && match('l', palavra, pos) && match('s', palavra, pos) && match('e', palavra, pos))
+              if(check('e', texto, pos) && check('l', texto, pos) && check('s', texto, pos) && check('e', texto, pos))
               {
-                if(cmd(palavra, pos))
+                if(cmd(texto, pos))
                 {
                   return (1);
                 }
@@ -1010,16 +944,16 @@ int sIF(char palavra[], int *pos){ //<if> → sIF(<exp>)sTHEN<cmd>[sELSE<cmd>]
     return (0);
 }
 
-int fr(char palavra[], int *pos){ //<fr> → sFOR(<atr>;<exp>;<atr>)<cmd>
+int fr(char texto[], int *pos){ //<fr> → sFOR(<atr>;<exp>;<atr>)<cmd>
   if(lookahead == 'f')
   {
-    if(match('f', palavra, pos) && match('o', palavra, pos) && match('r', palavra, pos))
+    if(check('f', texto, pos) && check('o', texto, pos) && check('r', texto, pos))
     {
       if(lookahead == '(')
       {
-        if(match('(', palavra, pos) && atr(palavra, pos) && match(';', palavra, pos) && exp1(palavra, pos) && 
-          match(';', palavra, pos) && atr(palavra,pos) &&
-          match(')', palavra, pos) && cmd(palavra, pos))
+        if(check('(', texto, pos) && atr(texto, pos) && check(';', texto, pos) && exp1(texto, pos) && 
+          check(';', texto, pos) && atr(texto,pos) &&
+          check(')', texto, pos) && cmd(texto, pos))
         {
           return (1);
         }
@@ -1036,15 +970,15 @@ int fr(char palavra[], int *pos){ //<fr> → sFOR(<atr>;<exp>;<atr>)<cmd>
     return (0);
 }
   
-int wh(char palavra[], int *pos){ //<wh> → sWHILE(<exp>)<cmd>
+int wh(char texto[], int *pos){ //<wh> → sWHILE(<exp>)<cmd>
   if(lookahead == 'w')
   {
-    if(match('w', palavra, pos) && match('h', palavra, pos) && match('i', palavra, pos) && match('l', palavra, pos) && match('e', palavra, pos))
+    if(check('w', texto, pos) && check('h', texto, pos) && check('i', texto, pos) && check('l', texto, pos) && check('e', texto, pos))
     {
       segueWhile:
-     if(match('(', palavra, pos) && exp1(palavra, pos) && match(')', palavra, pos))
+     if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
      {
-       if(cmd(palavra, pos))
+       if(cmd(texto, pos))
        {
          return (1);
        }
@@ -1059,7 +993,7 @@ int wh(char palavra[], int *pos){ //<wh> → sWHILE(<exp>)<cmd>
   }
   else if(lookahead == 'h') //Por conta da funcao write, as vezes acaba sendo marcado o w inicial
   {
-    if(match('h', palavra, pos) && match('i', palavra, pos) && match('l', palavra, pos) && match('e', palavra, pos))
+    if(check('h', texto, pos) && check('i', texto, pos) && check('l', texto, pos) && check('e', texto, pos))
       {
        goto segueWhile;
       }
@@ -1068,22 +1002,22 @@ int wh(char palavra[], int *pos){ //<wh> → sWHILE(<exp>)<cmd>
     return (0);
 }
   
-int rpt(char palavra[], int *pos){ //<rpt> → sREPEAT{<cmd>}sUNTIL(<exp>)
+int rpt(char texto[], int *pos){ //<rpt> → sREPEAT{<cmd>}sUNTIL(<exp>)
   if(lookahead == 'r')
   {
-    if(match('r', palavra, pos) && match('e', palavra, pos) && match('p', palavra, pos) && match('e', palavra, pos) &&
-      match('a', palavra, pos) && match ('t', palavra, pos))
+    if(check('r', texto, pos) && check('e', texto, pos) && check('p', texto, pos) && check('e', texto, pos) &&
+      check('a', texto, pos) && check ('t', texto, pos))
     {
-        if(cmd(palavra, pos))
+        if(cmd(texto, pos))
         {
           if(lookahead == 'u')
           {
-            if(match('u', palavra, pos) && match('n', palavra, pos) && match('t', palavra, pos) && match('i', palavra, pos),
-            match('l', palavra, pos))
+            if(check('u', texto, pos) && check('n', texto, pos) && check('t', texto, pos) && check('i', texto, pos),
+            check('l', texto, pos))
             {
               if(lookahead == '(')
               {
-                if(match('(', palavra, pos) && exp1(palavra, pos) && match(')', palavra, pos))
+                if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
                 {
                  return (1);
                 }
@@ -1101,12 +1035,12 @@ int rpt(char palavra[], int *pos){ //<rpt> → sREPEAT{<cmd>}sUNTIL(<exp>)
         }
         else if(lookahead == 'u')
         {
-          if(match('u', palavra, pos) && match('n', palavra, pos) && match('t', palavra, pos) && match('i', palavra, pos)
-          && match('l', palavra, pos))
+          if(check('u', texto, pos) && check('n', texto, pos) && check('t', texto, pos) && check('i', texto, pos)
+          && check('l', texto, pos))
           {
             if(lookahead == '(')
             {
-              if(match('(', palavra, pos) && exp1(palavra, pos) && match(')', palavra, pos))
+              if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
               {
                return (1);
               }
@@ -1129,18 +1063,18 @@ int rpt(char palavra[], int *pos){ //<rpt> → sREPEAT{<cmd>}sUNTIL(<exp>)
     return (0);
 }
 
-int atr(char palavra[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
-  if(id(palavra, pos))
+int atr(char texto[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
+  if(id(texto, pos))
   {
     if(lookahead == '[')
     {
-      if(match('[', palavra, pos) && digito(palavra, pos) && match(']', palavra, pos))
+      if(check('[', texto, pos) && digito(texto, pos) && check(']', texto, pos))
       {
         if(lookahead == '<')
         {
-          if(match('<', palavra, pos) && match ('-', palavra, pos))
+          if(check('<', texto, pos) && check ('-', texto, pos))
           {
-            if(exp1(palavra, pos))
+            if(exp1(texto, pos))
             {
               return (1);
             }
@@ -1154,9 +1088,9 @@ int atr(char palavra[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
     }
     else if(lookahead == '<')
     {
-      if(match('<', palavra, pos) && match ('-', palavra, pos))
+      if(check('<', texto, pos) && check ('-', texto, pos))
       {
-        if(exp1(palavra, pos))
+        if(exp1(texto, pos))
         {
           return (1);
         }
@@ -1169,10 +1103,10 @@ int atr(char palavra[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
   }
   else if(lookahead == '[')
   {
-      if(match('[', palavra, pos) && digito(palavra, pos) && match(']', palavra, pos)){
+      if(check('[', texto, pos) && digito(texto, pos) && check(']', texto, pos)){
         if(lookahead == '<'){
-          if(match('<', palavra, pos) && match ('-', palavra, pos)){
-            if(exp1(palavra, pos)){
+          if(check('<', texto, pos) && check ('-', texto, pos)){
+            if(exp1(texto, pos)){
               return (1);
             }
             else return (0);
@@ -1185,8 +1119,8 @@ int atr(char palavra[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
   }
   else if(lookahead == '<')
   {
-      if(match('<', palavra, pos) && match ('-', palavra, pos)){
-        if(exp1(palavra, pos))
+      if(check('<', texto, pos) && check ('-', texto, pos)){
+        if(exp1(texto, pos))
         {
           return (1);
         }
@@ -1198,16 +1132,16 @@ int atr(char palavra[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
     return (0);
 }
   
-int f(char palavra[], int *pos){ //<f> → <id>(<exp>{,<exp>})
-  if(id(palavra, pos))
+int f(char texto[], int *pos){ //<f> → <id>(<exp>{,<exp>})
+  if(id(texto, pos))
   {
     if(lookahead == '(')
     {
-      if(match('(', palavra, pos) && exp1(palavra, pos))
+      if(check('(', texto, pos) && exp1(texto, pos))
       {
         if(lookahead == ')')
         {
-          if(match(')', palavra, pos))
+          if(check(')', texto, pos))
           {
             return (1);
           }
@@ -1216,7 +1150,7 @@ int f(char palavra[], int *pos){ //<f> → <id>(<exp>{,<exp>})
         }
         else if (lookahead == ',')
         {
-          if(match(',', palavra, pos) && exp1(palavra, pos) && match(')', palavra, pos))
+          if(check(',', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
           {
             return (1);
           }
@@ -1234,11 +1168,11 @@ int f(char palavra[], int *pos){ //<f> → <id>(<exp>{,<exp>})
   }
   else if(lookahead == '(')
     {
-      if(match('(', palavra, pos) && exp1(palavra, pos))
+      if(check('(', texto, pos) && exp1(texto, pos))
       {
         if(lookahead == ')')
         {
-          if(match(')', palavra, pos))
+          if(check(')', texto, pos))
           {
             return (1);
           }
@@ -1247,7 +1181,7 @@ int f(char palavra[], int *pos){ //<f> → <id>(<exp>{,<exp>})
         }
         else if (lookahead == ',')
         {
-          if(match(',', palavra, pos) && exp1(palavra, pos) && match(')', palavra, pos))
+          if(check(',', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
           {
             return (1);
           }
@@ -1264,10 +1198,10 @@ int f(char palavra[], int *pos){ //<f> → <id>(<exp>{,<exp>})
     return (0);
 }
 
-int e(char palavra[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
+int e(char texto[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
   if(lookahead == '\'')  // sCHAR
   {
-    if(match('\'', palavra, pos) && let(palavra, pos) && match('\'', palavra, pos))
+    if(check('\'', texto, pos) && let(texto, pos) && check('\'', texto, pos))
     {
       return (1);
     }
@@ -1276,7 +1210,7 @@ int e(char palavra[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
   }
   else if((lookahead >= '0' && lookahead <='9') || lookahead == '.') //sNUM 
   {
-    if(digito(palavra, pos))
+    if(digito(texto, pos))
     {
       return (1);
     }
@@ -1285,18 +1219,18 @@ int e(char palavra[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
   }
   else if(lookahead == '\"')
   {
-    if(match('\"', palavra, pos) && let(palavra, pos) && match('\"', palavra, pos))
+    if(check('\"', texto, pos) && let(texto, pos) && check('\"', texto, pos))
     {
       return (1);
     }
     else
       return (0);
   }
-  else if(id(palavra, pos))
+  else if(id(texto, pos))
   {
     if(lookahead == '[')
     {
-      if(match('[', palavra, pos) && digito(palavra, pos) && match(']', palavra, pos))
+      if(check('[', texto, pos) && digito(texto, pos) && check(']', texto, pos))
       {
         return (1);
       }
@@ -1305,7 +1239,7 @@ int e(char palavra[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
     }
     else if(lookahead == '(') //Caso tenha um ID mas na verdade seja um f
     {
-      if(f(palavra, pos))
+      if(f(texto, pos))
       {
         return (1);
       }
@@ -1313,7 +1247,7 @@ int e(char palavra[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
     else
       return (1);
   }
-  else if(f(palavra, pos))
+  else if(f(texto, pos))
   {
     return (1);
   }
@@ -1321,13 +1255,13 @@ int e(char palavra[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
     return (0);
 }
   
-int exp1(char palavra[], int *pos){ //<exp> → <exps>{<op_cat3><exps>} 
+int exp1(char texto[], int *pos){ //<exp> → <exps>{<op_cat3><exps>} 
   NovaExp:
-  if(exps(palavra, pos))
+  if(exps(texto, pos))
   {
-    if(op_cat3(palavra, pos)&& exps(palavra, pos))
+    if(op_cat3(texto, pos)&& exps(texto, pos))
     {
-      if(op_cat3(palavra, pos)) //Caso tenha mais operadores
+      if(op_cat3(texto, pos)) //Caso tenha mais operadores
       {
         goto NovaExp;
       }
@@ -1340,13 +1274,13 @@ int exp1(char palavra[], int *pos){ //<exp> → <exps>{<op_cat3><exps>}
     return (0);
 }
   
-int exps(char palavra[], int *pos){ //<exps> → <tmo>{<op_cat2><tmo>}
+int exps(char texto[], int *pos){ //<exps> → <tmo>{<op_cat2><tmo>}
   NovaExp:
-  if(tmo(palavra, pos))
+  if(tmo(texto, pos))
   {
-    if(op_cat2(palavra, pos) && tmo(palavra, pos))
+    if(op_cat2(texto, pos) && tmo(texto, pos))
     {
-      if(op_cat2(palavra, pos))
+      if(op_cat2(texto, pos))
       {
         goto NovaExp; //Caso tenha novos operadores
       }
@@ -1359,13 +1293,13 @@ int exps(char palavra[], int *pos){ //<exps> → <tmo>{<op_cat2><tmo>}
     return (0);
 }
 
-int tmo(char palavra[], int *pos){ //<tmo> → <ftr>{<op_cat1><ftr>}
+int tmo(char texto[], int *pos){ //<tmo> → <ftr>{<op_cat1><ftr>}
   NovaExp:
-  if(ftr(palavra, pos))
+  if(ftr(texto, pos))
   {
-    if(op_cat1(palavra, pos) && ftr(palavra, pos))
+    if(op_cat1(texto, pos) && ftr(texto, pos))
     {
-      if(op_cat1(palavra, pos))
+      if(op_cat1(texto, pos))
       {
         goto NovaExp; //Caso tenha novo operador
       }
@@ -1378,11 +1312,11 @@ int tmo(char palavra[], int *pos){ //<tmo> → <ftr>{<op_cat1><ftr>}
     return (0);
 }
   
-int ftr(char palavra[], int *pos){ //<ftr> → <e>|sNOT<ftr>|(<exp>)
+int ftr(char texto[], int *pos){ //<ftr> → <e>|sNOT<ftr>|(<exp>)
   if(lookahead == 'n') // ftr -> not<ftr>
   { 
-    if(match('n', palavra, pos) && match('o', palavra, pos) && match('t', palavra, pos)){
-      if(ftr(palavra, pos)){
+    if(check('n', texto, pos) && check('o', texto, pos) && check('t', texto, pos)){
+      if(ftr(texto, pos)){
         return (1);
       }
       else 
@@ -1393,14 +1327,14 @@ int ftr(char palavra[], int *pos){ //<ftr> → <e>|sNOT<ftr>|(<exp>)
   }
   else if(lookahead == '(') //ftr -> (exp)
   {
-    if(match('(', palavra, pos) && exp1(palavra, pos) && match(')', palavra, pos))
+    if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
     {
       return (1);
     }
     else
       return (0);
   }
-  else if(e(palavra, pos)) // ftr -> <e>
+  else if(e(texto, pos)) // ftr -> <e>
   {
     return(1);
   }
@@ -1408,14 +1342,14 @@ int ftr(char palavra[], int *pos){ //<ftr> → <e>|sNOT<ftr>|(<exp>)
     return (0);
 }
   
-int op_cat3(char palavra[], int *pos){ //<op_cat3> → sMAIOR|sMAIOR_IGUAL|sMENOR| sMENOR_IGUAL|sIGUAL|sDIFERENTE
+int op_cat3(char texto[], int *pos){ //<op_cat3> → sMAIOR|sMAIOR_IGUAL|sMENOR| sMENOR_IGUAL|sIGUAL|sDIFERENTE
   if(lookahead == '>')
   {
-    if(match('>', palavra, pos))
+    if(check('>', texto, pos))
     {
       if(lookahead == '=')
       {
-        if(match('=', palavra, pos)) //Simbolo maior igual
+        if(check('=', texto, pos)) //Simbolo maior igual
         {
           return (1);
         }
@@ -1430,11 +1364,11 @@ int op_cat3(char palavra[], int *pos){ //<op_cat3> → sMAIOR|sMAIOR_IGUAL|sMENO
   }
   else if(lookahead == '<') 
   {
-    if(match('<', palavra, pos)) // sMenor
+    if(check('<', texto, pos)) // sMenor
     {
       if(lookahead == '=')
       {
-        if(match('=', palavra, pos)){ //sMenorIgual
+        if(check('=', texto, pos)){ //sMenorIgual
           return (1);
         }
         else
@@ -1448,11 +1382,11 @@ int op_cat3(char palavra[], int *pos){ //<op_cat3> → sMAIOR|sMAIOR_IGUAL|sMENO
   }
   else if(lookahead == '=')
   {
-    if(match('=', palavra, pos)) // sIgual
+    if(check('=', texto, pos)) // sIgual
     {
       if(lookahead == '=')
       {
-        if(match('=', palavra, pos))
+        if(check('=', texto, pos))
         {
           return (1);
         }
@@ -1467,11 +1401,11 @@ int op_cat3(char palavra[], int *pos){ //<op_cat3> → sMAIOR|sMAIOR_IGUAL|sMENO
   }
   if(lookahead == '!')
   {
-    if(match('!', palavra, pos)) //sDiferente
+    if(check('!', texto, pos)) //sDiferente
     {
       if(lookahead == '=')
       {
-        if(match('=', palavra, pos))
+        if(check('=', texto, pos))
         {
           return (1);
         }
@@ -1488,10 +1422,10 @@ int op_cat3(char palavra[], int *pos){ //<op_cat3> → sMAIOR|sMAIOR_IGUAL|sMENO
     return (0);
 }
   
-int op_cat2(char palavra[], int *pos){ //<op_cat2> → sSOMA|sSUBTR|sOR
+int op_cat2(char texto[], int *pos){ //<op_cat2> → sSOMA|sSUBTR|sOR
   if(lookahead == '+')
   {
-    if(match('+', palavra, pos))
+    if(check('+', texto, pos))
     {
       return (1);
     }
@@ -1500,7 +1434,7 @@ int op_cat2(char palavra[], int *pos){ //<op_cat2> → sSOMA|sSUBTR|sOR
   }
   else if(lookahead == '-')
   {
-    if(match('-', palavra, pos))
+    if(check('-', texto, pos))
     {
       return (1);
     }
@@ -1509,7 +1443,7 @@ int op_cat2(char palavra[], int *pos){ //<op_cat2> → sSOMA|sSUBTR|sOR
   }
   else if(lookahead == 'o')
   {
-    if(match('o', palavra, pos) && match('r', palavra, pos)){
+    if(check('o', texto, pos) && check('r', texto, pos)){
       return (1);
     }
     else
@@ -1519,23 +1453,23 @@ int op_cat2(char palavra[], int *pos){ //<op_cat2> → sSOMA|sSUBTR|sOR
     return (0); //Simb opcional
 }
   
-int op_cat1(char palavra[], int *pos){ //<op_cat2> → sSOMA|sSUBTR|sOR
+int op_cat1(char texto[], int *pos){ //<op_cat2> → sSOMA|sSUBTR|sOR
   if(lookahead == '*'){
-    if(match('*', palavra, pos)){
+    if(check('*', texto, pos)){
       return (1);
     }
     else
       return (0);
   }
   else if(lookahead == '/'){
-    if(match('/', palavra, pos)){
+    if(check('/', texto, pos)){
       return (1);
     }
     else
       return (0);
   }
   else if(lookahead == 'a'){
-    if(match('a', palavra, pos) && match('n', palavra, pos) && match('d', palavra, pos)){
+    if(check('a', texto, pos) && check('n', texto, pos) && check('d', texto, pos)){
       return (1);
     }
     else
