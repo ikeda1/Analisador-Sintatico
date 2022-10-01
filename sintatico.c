@@ -33,14 +33,14 @@ int cmd(char texto[], int *pos);
 int wr(char texto[], int *pos);
 int rd(char texto[], int *pos);
 int retorna(char texto[], int *pos);
-int sIF(char texto[], int *pos);
+int IF(char texto[], int *pos);
 int fr(char texto[], int *pos);
 int wh(char texto[], int *pos);
 int rpt(char texto[], int *pos);
 int atr(char texto[], int *pos);
 int f(char texto[], int *pos);
 int e(char texto[], int *pos);
-int exp1(char texto[], int *pos);
+int expr(char texto[], int *pos);
 int exps(char texto[], int *pos);
 int tmo(char texto[], int *pos);
 int ftr(char texto[], int *pos);
@@ -734,7 +734,7 @@ int cmd(char texto[], int *pos){ //<cmd> → <wr>|<rd>|<if>|<fr>|<wh>|<rpt>|<atr
   else if(retorna(texto, pos)){
     return (1);
   }
-  else if(sIF(texto, pos)){
+  else if(IF(texto, pos)){
     return (1);
   }
   else if(fr(texto, pos)){
@@ -889,7 +889,7 @@ int retorna(char texto[], int *pos) {
   {
     if(check('t', texto, pos) && check('u', texto, pos) && check('r', texto, pos) && check('n', texto, pos)) //Por conta do read as vezes é marcado o re de return então para funcao funcionar temos isso de forma auxiliar
     {
-      if(exp1(texto, pos))
+      if(expr(texto, pos))
       {
         return (1);
       }
@@ -899,49 +899,31 @@ int retorna(char texto[], int *pos) {
     return (0);
 }
 
-int sIF(char texto[], int *pos){ //<if> → sIF(<exp>)sTHEN<cmd>[sELSE<cmd>]
-  if(lookahead == 'i')
-  {
-    if(check('i', texto, pos) && check('f', texto, pos) && check('(', texto, pos)
-      && exp1(texto, pos) && check(')', texto, pos))
-    {
-      if(lookahead == 't')
-      {
-        if(check('t', texto, pos) && check('h', texto, pos) && check('e', texto, pos) && check('n', texto, pos))
-        {
-          if(cmd(texto, pos) && check(';', texto, pos))
-          {
-            if(lookahead == 'e')
-            {
-              if(check('e', texto, pos) && check('l', texto, pos) && check('s', texto, pos) && check('e', texto, pos))
-              {
-                if(cmd(texto, pos))
-                {
-                  return (1);
+int IF(char texto[], int *pos) { // <if> → IF(<exp>)sTHEN<cmd>[sELSE<cmd>]
+    if (lookahead == 'i') {
+        if (check('i', texto, pos) && check('f', texto, pos)) {
+            if (check('(', texto, pos)) {
+                if (expr(texto, pos)) {
+                    if (check(')', texto, pos)) {
+                        if (check('t', texto, pos) && check('h', texto, pos) && check('e', texto, pos) && check('n', texto, pos)) {
+                            if (cmd(texto, pos)) {
+
+                                if (lookahead == 'e') { // se tiver sELSE
+                                    if (check('e', texto, pos) && check('l', texto, pos) && check('s', texto, pos) && check('e', texto, pos)) {
+                                        if (cmd(texto, pos)) {
+                                            return 1;
+                                        }
+                                    }
+
+                                } else return 1; // se não tiver sELSE
+                            }
+                        }
+                    }
                 }
-                else
-                  return (0);
-              }
-              else
-                return (0);
             }
-          else
-            return (1);
-          }
-          else
-            return (0);
-          }
-        else
-          return (0);
         }
-        else
-          return (0);
     }
-    else
-      return (0);
-  }
-  else
-    return (0);
+    return 0;
 }
 
 int fr(char texto[], int *pos){ //<fr> → sFOR(<atr>;<exp>;<atr>)<cmd>
@@ -951,7 +933,7 @@ int fr(char texto[], int *pos){ //<fr> → sFOR(<atr>;<exp>;<atr>)<cmd>
     {
       if(lookahead == '(')
       {
-        if(check('(', texto, pos) && atr(texto, pos) && check(';', texto, pos) && exp1(texto, pos) && 
+        if(check('(', texto, pos) && atr(texto, pos) && check(';', texto, pos) && expr(texto, pos) && 
           check(';', texto, pos) && atr(texto,pos) &&
           check(')', texto, pos) && cmd(texto, pos))
         {
@@ -976,7 +958,7 @@ int wh(char texto[], int *pos){ //<wh> → sWHILE(<exp>)<cmd>
     if(check('w', texto, pos) && check('h', texto, pos) && check('i', texto, pos) && check('l', texto, pos) && check('e', texto, pos))
     {
       segueWhile:
-     if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
+     if(check('(', texto, pos) && expr(texto, pos) && check(')', texto, pos))
      {
        if(cmd(texto, pos))
        {
@@ -1017,7 +999,7 @@ int rpt(char texto[], int *pos){ //<rpt> → sREPEAT{<cmd>}sUNTIL(<exp>)
             {
               if(lookahead == '(')
               {
-                if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
+                if(check('(', texto, pos) && expr(texto, pos) && check(')', texto, pos))
                 {
                  return (1);
                 }
@@ -1040,7 +1022,7 @@ int rpt(char texto[], int *pos){ //<rpt> → sREPEAT{<cmd>}sUNTIL(<exp>)
           {
             if(lookahead == '(')
             {
-              if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
+              if(check('(', texto, pos) && expr(texto, pos) && check(')', texto, pos))
               {
                return (1);
               }
@@ -1074,7 +1056,7 @@ int atr(char texto[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
         {
           if(check('<', texto, pos) && check ('-', texto, pos))
           {
-            if(exp1(texto, pos))
+            if(expr(texto, pos))
             {
               return (1);
             }
@@ -1090,7 +1072,7 @@ int atr(char texto[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
     {
       if(check('<', texto, pos) && check ('-', texto, pos))
       {
-        if(exp1(texto, pos))
+        if(expr(texto, pos))
         {
           return (1);
         }
@@ -1106,7 +1088,7 @@ int atr(char texto[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
       if(check('[', texto, pos) && digito(texto, pos) && check(']', texto, pos)){
         if(lookahead == '<'){
           if(check('<', texto, pos) && check ('-', texto, pos)){
-            if(exp1(texto, pos)){
+            if(expr(texto, pos)){
               return (1);
             }
             else return (0);
@@ -1120,7 +1102,7 @@ int atr(char texto[], int *pos){ //<atr> → <id>[[sNUM]]sATRIB<exp>
   else if(lookahead == '<')
   {
       if(check('<', texto, pos) && check ('-', texto, pos)){
-        if(exp1(texto, pos))
+        if(expr(texto, pos))
         {
           return (1);
         }
@@ -1137,7 +1119,7 @@ int f(char texto[], int *pos){ //<f> → <id>(<exp>{,<exp>})
   {
     if(lookahead == '(')
     {
-      if(check('(', texto, pos) && exp1(texto, pos))
+      if(check('(', texto, pos) && expr(texto, pos))
       {
         if(lookahead == ')')
         {
@@ -1150,7 +1132,7 @@ int f(char texto[], int *pos){ //<f> → <id>(<exp>{,<exp>})
         }
         else if (lookahead == ',')
         {
-          if(check(',', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
+          if(check(',', texto, pos) && expr(texto, pos) && check(')', texto, pos))
           {
             return (1);
           }
@@ -1168,7 +1150,7 @@ int f(char texto[], int *pos){ //<f> → <id>(<exp>{,<exp>})
   }
   else if(lookahead == '(')
     {
-      if(check('(', texto, pos) && exp1(texto, pos))
+      if(check('(', texto, pos) && expr(texto, pos))
       {
         if(lookahead == ')')
         {
@@ -1181,7 +1163,7 @@ int f(char texto[], int *pos){ //<f> → <id>(<exp>{,<exp>})
         }
         else if (lookahead == ',')
         {
-          if(check(',', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
+          if(check(',', texto, pos) && expr(texto, pos) && check(')', texto, pos))
           {
             return (1);
           }
@@ -1255,7 +1237,7 @@ int e(char texto[], int *pos){ //<e> → sSTRING|sNUM|sCHAR|<id>[[sNUM]]|<f>
     return (0);
 }
   
-int exp1(char texto[], int *pos){ //<exp> → <exps>{<op_cat3><exps>} 
+int expr(char texto[], int *pos){ //<exp> → <exps>{<op_cat3><exps>} 
   NovaExp:
   if(exps(texto, pos))
   {
@@ -1327,7 +1309,7 @@ int ftr(char texto[], int *pos){ //<ftr> → <e>|sNOT<ftr>|(<exp>)
   }
   else if(lookahead == '(') //ftr -> (exp)
   {
-    if(check('(', texto, pos) && exp1(texto, pos) && check(')', texto, pos))
+    if(check('(', texto, pos) && expr(texto, pos) && check(')', texto, pos))
     {
       return (1);
     }
