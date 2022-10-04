@@ -1,8 +1,8 @@
 prg Exemplo_02;
 var
- int x;
+int x;
 begin
- write("Entre com um numero inteiro:");
- read(x);
- write("O numero que voce digitou e:",x);
+write("Entre com um numero inteiro:");
+read(x);
+write("O numero que voce digitou e:",x);
 end.

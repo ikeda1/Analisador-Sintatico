@@ -20,7 +20,7 @@ Pedro Henrique Ikeda - 32016344
   */
 typedef enum {
 	ERRO,			// símbolo inválido
-	IDENTIF,		// identificador
+	sIDENT,		// identificador
 	OP_ATRIB,		// <-
 	OP_SOMA,		// +
 	OP_SUB,			// -
@@ -60,11 +60,12 @@ typedef enum {
 	OR,				// disjuncao
 	NOT,			// negacao
 	VOID,			// tipo void, sem retorno
-	PRG,			// nome do programa
+	sPRG,			// nome do programa
 	RETURN,			// retorna uma expressao
 	SUBROT,			// sub-rotina
-	VARIABLE,		// var
+	sVAR,		// var
 	PONTO_VIRG,		// ;
+	DOIS_PONTOS,  // :
 	PONTOF,			// .
 	VIRGULA,		// ,
 	CHAR_CONTEUDO,	// 'CONTEUDO'
@@ -119,11 +120,12 @@ char* tokenToStr[] = {
 	"Declaracao de uma sub-rotina",
 	"Declaracao de uma variavel",
 	"Ponto e virgula",
+	"Dois pontos",
 	"Ponto final",
 	"Virgula",
 	"Char",
 	"String",
-	"Fim de conteudo"
+	"Fim de conteudo",
 };
 
 /*
@@ -153,51 +155,63 @@ TOKEN scanner();
  * Implementa um analisador léxico simples para processamento de expressões
  * aritméticas parentizadas que envolvam variáveis e elementos numéricos.
  */
-int main(int argc, char* argv[]) {
+// int main(int argc, char* argv[]) {
 
-	if (argc < 2) {
-		printf("Analisador lexico para a LPD\n");
-		printf("Uso:\n");
-		printf("  lexLPD.exe <arquivo_fonte> [/v]\n");
-		printf("\n");
-		printf("<arquivo_fonte> pode ser qualquer arquivo texto cujo conteudo sera\n");
-		printf("analisado quanto a linguagem LPD.\n");
-		return 0;
-	}
-	else {
-		if ((argc == 3) && (strcmp(argv[2], "/v") == 0))
-			debugMode = TRUE;
+// 	if (argc < 2) {
+// 		printf("Analisador lexico para a LPD\n");
+// 		printf("Uso:\n");
+// 		printf("  lexLPD.exe <arquivo_fonte> [/v]\n");
+// 		printf("\n");
+// 		printf("<arquivo_fonte> pode ser qualquer arquivo texto cujo conteudo sera\n");
+// 		printf("analisado quanto a linguagem LPD.\n");
+// 		return 0;
+// 	}
+// 	else {
+// 		if ((argc == 3) && (strcmp(argv[2], "/v") == 0))
+// 			debugMode = TRUE;
 
-		printf("Iniciando a analise lexica do arquivo: %s\n\n", argv[1]);
-	}
+// 		printf("Iniciando a analise lexica do arquivo: %s\n\n", argv[1]);
+// 	}
 
-	// Abertura do arquivo e carregamento do seu conteúdo para o buffer
-	FILE* arq = fopen(argv[1], "r");
-	if (arq == NULL) {
-		fprintf(stderr, "Erro ao tentar abrir o aquivo \"%s\"", argv[1]);
-		return -1;
-	}
-	fseek(arq, 0, SEEK_END);
-	int tam_arq = ftell(arq);
-	fseek(arq, 0, SEEK_SET);
+// 	// Abertura do arquivo e carregamento do seu conteúdo para o buffer
+// 	FILE* arq = fopen(argv[1], "r");
+// 	if (arq == NULL) {
+// 		fprintf(stderr, "Erro ao tentar abrir o aquivo \"%s\"", argv[1]);
+// 		return -1;
+// 	}
+// 	fseek(arq, 0, SEEK_END);
+// 	int tam_arq = ftell(arq);
+// 	fseek(arq, 0, SEEK_SET);
 
-	buffer = (char*)calloc(tam_arq, sizeof(char));
-	if (buffer == NULL)
-		exit(-1);
-	else
-		fread(buffer, sizeof(char), tam_arq, arq);
+// 	buffer = (char*)calloc(tam_arq, sizeof(char));
+// 	if (buffer == NULL)
+// 		exit(-1);
+// 	else
+// 		fread(buffer, sizeof(char), tam_arq, arq);
 
-	fclose(arq);
+// 	fclose(arq);
 
-	TOKEN tk;
-	do {
-		tk = scanner();
-		printf("\nLinha:%3d | %-40s | %5s", tk.linha, tokenToStr[tk.tipo], tk.valor);
-	} while ((tk.tipo != EOS) && (tk.tipo != ERRO));
+// 	TOKEN tk;
+// 	do {
+// 		tk = scanner();
+		
+// 		if (tk.tipo == ABRE_COM) {
+// 			printf("\nLinha:%3d | %-40s | %5s", tk.linha, tokenToStr[tk.tipo], tk.valor);
+// 			while (1) {
+// 				tk = scanner();
+// 				// printf("\nIGNORANDO:%3d | %-40s | %5s", tk.linha, tokenToStr[tk.tipo], tk.valor);
+// 				if (tk.tipo == FECHA_COM) {
+// 					break;
+// 				}
+// 			}
+// 		}
 
-	return 0;
+// 		printf("\nLinha:%3d | %-40s | %5s", tk.linha, tokenToStr[tk.tipo], tk.valor);
+// 	} while ((tk.tipo != EOS) && (tk.tipo != ERRO));
 
-}
+// 	return 0;
+
+// }
 
 /*
  * Analisador Léxico de expressões envolvendo variáveis, números e alguns operadores.
@@ -205,12 +219,11 @@ int main(int argc, char* argv[]) {
 TOKEN scanner() {
 
 	TOKEN tk;
-	int contFechaComent = 0;
 
+	restart:
 	tk.tipo = ERRO;
 	strcpy(tk.valor, "");
 	tk.linha = linha;
-
 	// Espaços, tabulações e outros elementos decorativos (comentários)
 	while ((*buffer == ' ') || (*buffer == '\t') || (*buffer == '\r') || (*buffer == '\n')) {
 		if (*buffer == '\n')
@@ -282,6 +295,7 @@ TOKEN scanner() {
 			tk.tipo = MENOR_IGUAL;
 		}
 		else if (*buffer == '-') {
+			if (debugMode) strncat(tk.valor, buffer, 1);
 			buffer++;
 			tk.tipo = OP_ATRIB;
 		}
@@ -301,14 +315,28 @@ TOKEN scanner() {
 	// Comentarios
 	else if (*buffer == '{') {
 		if (debugMode) strncat(tk.valor, buffer, 1);
-		tk.tipo = ABRE_COM;
+		// tk.tipo = ABRE_COM;
 		buffer++;
+		while (*buffer != '}') {
+			if (debugMode) strncat(tk.valor, buffer, 1);
+			if (*buffer == '\n') 
+				linha++;
+			// printf("No while\n");
+			buffer++;
+		}
+
+		if (*buffer == '}') {
+			if (debugMode) strncat(tk.valor, buffer, 1);
+			buffer++;
+			goto restart;
+			// tk.tipo = FECHA_COM;
+		}
 	}
-	else if (*buffer == '}') {
-		if (debugMode) strncat(tk.valor, buffer, 1);
-		tk.tipo = FECHA_COM;
-		buffer++;
-	}
+	// else if (*buffer == '}') {
+	// 	if (debugMode) strncat(tk.valor, buffer, 1);
+	// 	tk.tipo = FECHA_COM;
+	// 	buffer++;
+	// }
 	// Colchetes
 	else if (*buffer == '[') {
 		if (debugMode) strncat(tk.valor, buffer, 1);
@@ -326,6 +354,12 @@ TOKEN scanner() {
 		tk.tipo = PONTO_VIRG;
 		buffer++;
 	}
+	// Ponto virgula
+	else if (*buffer == ':') {
+		if (debugMode) strncat(tk.valor, buffer, 1);
+		tk.tipo = DOIS_PONTOS;
+		buffer++;
+	}
 	// Ponto Final
 	else if (*buffer == '.') {
 		if (debugMode) strncat(tk.valor, buffer, 1);
@@ -338,64 +372,64 @@ TOKEN scanner() {
 		tk.tipo = VIRGULA;
 		buffer++;
 	}
-	// Delimitador char
-	else if (*buffer == '\'') {
-		if (debugMode) strncat(tk.valor, buffer, 1);
-		tk.tipo = CHAR;
-		buffer++;
-	}
 
 	// Conteudo é char
-	// else if (*buffer == '\'') {
-	// 	if (debugMode) strncat(tk.valor, buffer, 1);
-	// 	// tk.tipo = CHAR;
-	// 	buffer++;
-	// 	while(*buffer != '\'') {
-	// 		if (debugMode) strncat(tk.valor, buffer, 1);
-	// 		buffer++;
-	// 		if (*buffer == '\n') {
-	// 			tk.tipo = ERRO;
-	// 			break;
-	// 		}
-	// 	}
-
-	// 	if (*buffer == '\'') {
-	// 		if (debugMode) strncat(tk.valor, buffer, 1);
-	// 		buffer++;
-	// 		tk.tipo = CHAR_CONTEUDO;
-	// 	}
-		
-	// 	else tk.tipo = ERRO;
-	// }
-
-	// Delimitador string
-	else if (*buffer == '\"') {
+	else if (*buffer == '\'') {
 		if (debugMode) strncat(tk.valor, buffer, 1);
-		tk.tipo = STRING;
+		// tk.tipo = CHAR;
 		buffer++;
+		while(*buffer != '\'') {
+			if (debugMode) strncat(tk.valor, buffer, 1);
+			buffer++;
+			if (*buffer == '\n') {
+				tk.tipo = ERRO;
+				break;
+			}
+		}
+
+		if (*buffer == '\'') {
+			if (debugMode) strncat(tk.valor, buffer, 1);
+			buffer++;
+			tk.tipo = CHAR_CONTEUDO;
+		}
+		
+		else tk.tipo = ERRO;
 	}
 
-	// Conteudo é string
+	// Delimitador char
+	// else if (*buffer == '\'') {
+	// 	if (debugMode) strncat(tk.valor, buffer, 1);
+	// 	tk.tipo = CHAR;
+	// 	buffer++;
+	// }
+	// Delimitador string
 	// else if (*buffer == '\"') {
 	// 	if (debugMode) strncat(tk.valor, buffer, 1);
+	// 	tk.tipo = STRING;
 	// 	buffer++;
-	// 	while(*buffer != '\"') {
-	// 		if (*buffer == '\n') {
-	// 			tk.tipo = ERRO;
-	// 			break;
-	// 		}
-	// 		if (debugMode) strncat(tk.valor, buffer, 1);
-	// 		buffer++;
-	// 	}
-
-	// 	if (*buffer == '\"') {
-	// 		if (debugMode) strncat(tk.valor, buffer, 1);
-	// 		buffer++;
-	// 		tk.tipo = STRING_CONTEUDO;
-	// 	}
-		
-	// 	else tk.tipo = ERRO;
 	// }
+
+	// Conteudo é string
+	else if (*buffer == '\"') {
+		if (debugMode) strncat(tk.valor, buffer, 1);
+		buffer++;
+		while(*buffer != '\"') {
+			if (*buffer == '\n') {
+				tk.tipo = ERRO;
+				break;
+			}
+			if (debugMode) strncat(tk.valor, buffer, 1);
+			buffer++;
+		}
+
+		if (*buffer == '\"') {
+			if (debugMode) strncat(tk.valor, buffer, 1);
+			buffer++;
+			tk.tipo = STRING_CONTEUDO;
+		}
+		
+		else tk.tipo = ERRO;
+	}
 
 	// Números
 	else if (isdigit(*buffer)) {
@@ -430,24 +464,24 @@ TOKEN scanner() {
 		else if (strcmp(tk.valor,"char" )== 0) tk.tipo = CHAR;
 		else if (strcmp(tk.valor,"else" )== 0) tk.tipo = ELSE;
 		else if (strcmp(tk.valor,"end" )== 0) tk.tipo = END;
-		else if (strcmp(tk.valor,"float" )== 0) tk.tipo = FLOAT;
+		else if (strcmp(tk.valor,"float" )== 0) tk.tipo = FLOAT_VAR;
 		else if (strcmp(tk.valor,"for" )== 0) tk.tipo = FOR;
 		else if (strcmp(tk.valor,"if" )== 0) tk.tipo = IF;
 		else if (strcmp(tk.valor,"int" )== 0) tk.tipo = INT_VAR;
 		else if (strcmp(tk.valor,"not" )== 0) tk.tipo = NOT;
 		else if (strcmp(tk.valor,"or" )== 0) tk.tipo = OR;
-		else if (strcmp(tk.valor,"prg" )== 0) tk.tipo = PRG;
+		else if (strcmp(tk.valor,"prg" )== 0) tk.tipo = sPRG;
 		else if (strcmp(tk.valor,"read" )== 0) tk.tipo = READ;
 		else if (strcmp(tk.valor,"repeat" )== 0) tk.tipo = REPEAT;
 		else if (strcmp(tk.valor,"return" )== 0) tk.tipo = RETURN;
 		else if (strcmp(tk.valor,"subrot" )== 0) tk.tipo = SUBROT;
 		else if (strcmp(tk.valor,"then" )== 0) tk.tipo = THEN;
 		else if (strcmp(tk.valor,"until" )== 0) tk.tipo = UNTIL;
-		else if (strcmp(tk.valor,"var" )== 0) tk.tipo = VARIABLE;
+		else if (strcmp(tk.valor,"var" )== 0) tk.tipo = sVAR;
 		else if (strcmp(tk.valor,"void" )== 0) tk.tipo = VOID;
-		else if (strcmp(tk.valor,"while " )== 0) tk.tipo = WHILE ;
+		else if (strcmp(tk.valor,"while" )== 0) tk.tipo = WHILE ;
 		else if (strcmp(tk.valor,"write" )== 0) tk.tipo = WRITE;
-		else tk.tipo = IDENTIF;
+		else tk.tipo = sIDENT;
 	}
 	else if ((*buffer == EOF) || (*buffer == '\x0')) {
 		if (debugMode) strncat(tk.valor, "EOF", 1);
