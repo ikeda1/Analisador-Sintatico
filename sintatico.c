@@ -4,7 +4,7 @@
 
 
 /*
-    Luis Henrique Bastos Tamura TIA: 32050151
+    Pedro Henrique Ikeda - 32016344
 
     Estrategia de recuperacao de erro adotado foi a de Modo Pânico,
     assim que for encontrado um erro, o codigo para imediatamente e reporta
@@ -51,6 +51,7 @@ int op_cat1(char texto[], int *pos);
 
 int check(char t, char texto[], int *pos){ //Verifica o simbolo e casa
   if (lookahead == t) {
+    // printf("%c ", lookahead); // DEBUG
     lookahead = texto[++(*pos)];
     return (1);
   }
@@ -58,34 +59,25 @@ int check(char t, char texto[], int *pos){ //Verifica o simbolo e casa
 }
 
 int ini(char texto[], int *pos) {
-    printf("inside\n");
     if (lookahead == 'p'){
-        printf("achou o p\n");
         if (check('p', texto, pos) && check('r', texto, pos) && check('g', texto, pos)){ // sPRG
-            printf("achou prg\n");
             if (id(texto, pos) && check(';', texto, pos)) { // <id>;
-                printf("dentro do id\n");
                 if (dcl(texto, pos)) {
-                    printf("achou dcl\n");
                     
                     if (sub(texto, pos)){
-                        printf("achou sub\n");
                         if (bco(texto, pos)) {
-                            printf("achou bco\n");
                             if (check('.', texto, pos)) {
                                 return 1;
                             }
                         } else return 0;
 
                     } else if (bco(texto, pos)) {
-                        printf("segundo bco\n");
                         if (check('.', texto, pos)){
                             return 1;
                         } else return 0;
                     }
 
                 } else if (sub(texto, pos)) {
-                    printf("segundo sub\n");
                     if (bco(texto, pos)) {
                         if (check('.', texto, pos)) {
                             return 1;
@@ -94,7 +86,6 @@ int ini(char texto[], int *pos) {
 
                 } 
                 else if (bco(texto, pos)) {
-                    printf("segundo bco\n");
                     if (check('.', texto, pos)) {
                         return 1;
                     }
@@ -108,8 +99,11 @@ int ini(char texto[], int *pos) {
 int id(char texto[], int *pos){ // <id> -> sIDENT
   if(isalpha(lookahead) || (lookahead >= '0' && lookahead <= '9') || lookahead == '_')
   {
+    printf("  ");
+    char tmp = lookahead;
     if(check(lookahead, texto, pos) && id(texto, pos))
     {
+      printf("%c", tmp);
       return (1);
     }
     else return (1);
@@ -121,6 +115,19 @@ int id(char texto[], int *pos){ // <id> -> sIDENT
   else 
     return(0);
 }
+
+// int id(char texto[], int *pos) {
+//     printf("id eh ");
+//     while (isalpha(lookahead) || isdigit(lookahead) || (lookahead == '_')) {
+//         printf("%c", lookahead);
+//         check(lookahead, texto, pos);
+//         if(lookahead == ';' || lookahead == '[' || lookahead == '(') {
+//             return 1;
+//         }
+//     }     
+//     printf("\nfim do id\n");
+//     return 0;
+// }
 
 int let(char texto[], int *pos){ //Letra ou simbolo
   if(isalpha(lookahead) || (lookahead >= '0' && lookahead <= '9') || lookahead == '_'
